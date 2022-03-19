@@ -23,3 +23,6 @@ HOTFIX 19.03.22
 - rob doesn't capitalise patch notes anymore because it's annoying
 - fixed bug in heardle message detection which resulted from making all commands not case insensitive
 - rob now knows something has gone wrong if the score is out of the correct range
+- rob now checks if a score for the day has been submitted before checking if the score is valid
+- updated rrob's logic slightly so he should say nothing when asleep and asked for patch notes rather than complaining about an invalid command
+- added catch so rob will not bother sending any message if there is nothing to say, i.e. he has reached the end of his command logic tree with no commands being triggered

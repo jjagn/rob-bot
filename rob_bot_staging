@@ -63,20 +63,20 @@ class HeardleBot(Client):
                     score = 7 - (score_message[1].count('⬛️') + score_message[1].count('🟥') + score_message[1].count('🟩'))
 
                 # check score is valid and that score has not already been submitted for today
-                valid_score = False
-                if score <= 6 and score >= 0:
-                    # i.e. valid score
-                    valid_score = True
-                    if heardle_number not in message_author.scores.keys():
+                if heardle_number not in message_author.scores.keys():
+                    valid_score = False
+                    if score <= 6 and score >= 0:
+                        # i.e. valid score
+                        valid_score = True
                         message_author.scores[heardle_number] = score
                         message_string = (f"{first_name} scored {score} for Heardle #{heardle_number}").upper()
-                    else:
-                        message_string = (f"{first_name} has already submitted a score for Heardle #{heardle_number}").upper()
-                else: # score is not valid
-                    if score > 6:
-                        message_string = (f"{first_name} probably cheated on Heardle #{heardle_number} today. score {score} is impossible, maximum score is 6").upper()
-                    elif score < 0 :
-                        message_string = (f"{first_name} probably didnt score {score} for Heardle #{heardle_number}, because their score can't be negative").upper()
+                    else: # score is not valid
+                        if score > 6:
+                            message_string = (f"{first_name} probably cheated on Heardle #{heardle_number} today. score {score} is impossible, maximum score is 6").upper()
+                        elif score < 0 :
+                            message_string = (f"{first_name} probably didnt score {score} for Heardle #{heardle_number}, because score can't be negative").upper()
+                else:
+                    message_string = (f"{first_name} has already submitted a score for Heardle #{heardle_number}").upper()
 
                 # check if player is a loser or not and score zeros                
                 if score == 0:
@@ -88,7 +88,7 @@ class HeardleBot(Client):
                 # send message set before
                 self.send(message_object, thread_id=thread_id, thread_type=thread_type)
                 if not valid_score:
-                    message_string = 'SOMETHING PROBABLY WENT WRONG, SCORE NOT RECORDED. MAYBE TRY AGAIN'
+                    message_object.text = 'SOMETHING PROBABLY WENT WRONG, SCORE NOT RECORDED. MAYBE TRY AGAIN'
                     self.send(message_object, thread_id=thread_id, thread_type=thread_type)
                 # i.e. if score is low
                 elif loser:
@@ -117,12 +117,21 @@ class HeardleBot(Client):
                 elif 'sleep' in protein:
                         message_object.text = "ZZZ"
                         self.awake = False
-                elif 'notes' in protein and self.awake:
-                    message_object.text = notes
+                
+                # these commands depend on rob being awake
+                elif self.awake:
+                    # fourth command, /rob notes, rob will send patch notes for current version ot the chat
+                    if 'notes' in protein:
+                        message_object.text = notes
+                    
+                    # if none have triggered  
+                    else:
+                        message_object.text = 'NO COMMAND DETECTED\n' + commands
                 else:
-                    message_object.text = 'NO COMMAND DETECTED\n' + commands
+                    send_message = False
 
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
+                if send_message:
+                    self.send(message_object, thread_id=thread_id, thread_type=thread_type)
 
     def number_from_message(self, message):
         start_index = 10
