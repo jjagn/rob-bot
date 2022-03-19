@@ -1,0 +1,9 @@
+- add asleep message
+- add command to put rob to sleep so that talking to him won't work, and he will only wake up when he hears a heardle message
+- make it so patch notes will only print when asked
+- potentially add a way to quit and add a message that triggers "i'm going to sleep" when you do that
+- potentially change endless if tree to switch case tree
+
+# need to make it so that rob doesn't reply to commands in his own mf patch notes
+# basically none of the previous fixes worked
+# completely change logic so that all commands require /rob to activate

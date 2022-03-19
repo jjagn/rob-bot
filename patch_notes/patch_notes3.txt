@@ -1,0 +1,25 @@
+patch notes for version 3
+ADDED:
+- completely revamped rob's command system. all commands are now accessed by typing /rob, then the command. the commands are:
+    - 'wake': will wake rob up if he is asleep
+    - 'status': rob will report his status
+    - 'sleep': rob will go to sleep. he will not respond to /rob notes during this time
+    - 'notes': rob will print patch notes for the mose recent patch
+
+UPDATES:
+- rob is now SIGNIFICANTLY less chatty. sorry rob. note that this means that there's not much point in sleep mode any more, but i'll keep it around in case i add stuff in future.
+- rob now always speaks in capitals, because that's how robots speak.
+- in the backend, significantly cleaned up rob's logic tree so it makes more sense to work with and has less ambiguous/double options. lots more elifs.
+- streamlined message sending, now updates message string and only sends the message in one line to clean up logic and avoid double messages in main loop. mainly adding this to patch notes so i remember to do it. update 19.03.22 22.17: i did it
+- reworked score calculation and message generation logic tree so it doesn't look and work like shit anymore
+- rob now keeps track of scores for each day inside the user's respective dictionary. should add functions to wipe all scores from dictionary, wipe the last score from the dictionary, wipe specific scores from the dictionary, and to save the users info to a file probably json need ot learn that run outn of punctuation oops
+
+HOTFIX 19.03.22
+- fixed bug where rob would not send the correct boot message sequence
+- some shit wasn't working and i fixed it.
+- some other shit wasn't working because i'm dumb. i'm still dumb but it's working now
+- added 'no command detected' response if rob detects /rob but does not detect a valid command
+- rob now sends a hint message for valid commands after the no command detected message is triggered
+- rob doesn't capitalise patch notes anymore because it's annoying
+- fixed bug in heardle message detection which resulted from making all commands not case insensitive
+- rob now knows something has gone wrong if the score is out of the correct range

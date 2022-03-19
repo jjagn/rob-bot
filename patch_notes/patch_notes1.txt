@@ -1,0 +1,2 @@
+patch notes for beta version 1
+- removed space after check for rob so he actually responds. this means he will potentially respond to people saying words that begin with rob but what the fuck else do you want from me

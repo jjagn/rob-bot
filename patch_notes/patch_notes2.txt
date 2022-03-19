@@ -1,0 +1,15 @@
+patch notes for version 2
+- rob can now sleep, and will not respond to messages unless someone wakes him. he will still track scores and reply to heardle messages while asleep
+- rob can be woken up by saying 'wake up rob' in chat. 'goodnight rob' will put him to sleep
+- 'are you here rob' will now cause rob to reply with 'yes', or 'zzz' depending on what state rob is in
+- rob's commands are now all case insensitive
+- rob will only print patch notes if he is awake and someone says 'patch notes please rob'
+
+#HOTFIX
+- there was a bug in the message reading code it's gone now
+- improved logic on goodnight rob command to prevent him saying hey immediately after being told to go to sleep
+- rob now actually doesn't send patch notes unless aasked
+- rob now doesn't respond to commands in his own mf patch notes
+- rob will now reply to messages that begin with rob
+- rob will now try to answer questions
+- improved rob's reply logic so he hopefully doesn't reply to a message more than once (i think)

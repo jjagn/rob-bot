@@ -1,0 +1,7 @@
+patch notes for beta version 0
+- won't respond if you just say a word with rob in it
+- added patch notes
+- added some new wakeup messages
+- changed score calculation to be more accurate (score is now 7-number(🟩)-number(🟥)-number(⬛️))
+- rob is now more polite and will say you're welcome if you say thanks rob
+- rob will now reply and say hey {name} with name lowercase
