@@ -1,14 +1,15 @@
+from email import message
 from fbchat import Client
 from fbchat.models import *
 from fbchat import log
 from random import randint
 
-version = 2
+version = 3
 
 username = "robbot8947"
 password = "pythonbot123"
 
-staging = False
+staging = True
 if staging:
     thread_id = "5820049228023910"
 else:
@@ -19,7 +20,7 @@ class Heardler:
     def __init__(self, id, name):
         self.id = id
         self.name = name
-        self.scores = []
+        self.scores = {}
     
     def average_score(self):
         return sum(self.scores) / len(self.scores)
@@ -36,81 +37,106 @@ class HeardleBot(Client):
         self.markAsDelivered(thread_id, message_object.uid)
         self.markAsRead(thread_id)
 
-        log.info("{} from {} in {}".format(message_object, thread_id, thread_type.name))
+        # add this check so that rob does not reply to commands he lists in his own patch notes
+        if author_id != self.uid:
+            log.info("{} from {} in {}".format(message_object, thread_id, thread_type.name))
 
-        protein = (message_object.text).lower()
-        auth = message_object.author
-        uname = user_dict[auth].name
-        first_name = uname.split(' ')[0]
+            protein = (message_object.text).lower() # cast message to lowercase so that all command checks aren't case sensitive
+            auth = message_object.author
+            message_author = user_dict[auth]
+            uname = message_author.name
+            first_name = uname.split(' ')[0]
 
-        print(protein)
+            print(protein)
 
-        loser = False
+            loser = False
 
-        if self.awake:
-            if '/rob' in protein.lower():
-                message_object.text = "leave me alone man that shit isn't coded yet"
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-            
-            if 'goodnight rob' in protein.lower:
-                message_object.text = "zzz"
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-                self.awake = False
+            heardle_scores = []
+            # initial check if the message that has been sent is a heardle message
+            if "#heardle" in protein:
+                heardle_number = self.number_from_message(protein)
 
-            if ' rob' in protein.lower():
-                message_object.text = f"hey {first_name.lower()}"
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
+                heardle_scores.append([auth, protein])
 
-            if 'thanks rob' in protein.lower():
-                message_object.text = "welcome g"
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
+                # iterate through scores in score list and report score
+                for score_message in heardle_scores:
+                    score = 7 - (score_message[1].count('⬛️') + score_message[1].count('🟥') + score_message[1].count('🟩'))
 
-            if 'patch notes please rob' in protein.lower():
-                message_object.text = notes
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-
-        if 'wake up rob' in protein.lower():
-            self.awake = True
-            message_object.text = "sup"
-            self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-
-        if 'are you here rob' in protein:
-            if self.awake:
-                message_object.text = 'yeah'
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-            else:
-                message_object.text = 'zzz'
-                self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-
-        heardle_scores = []
-        if "#Heardle" in protein:
-            heardle_number = self.number_from_message(protein)
-
-            heardle_scores.append([auth, protein])
-
-            for score_message in heardle_scores:
-                score = 7 - (score_message[1].count('⬛️') + score_message[1].count('🟥') + score_message[1].count('🟩'))
-                if score > 6:
-                    message_string = (f"{first_name} didn't score {score} for Heardle #{heardle_number} today, because that's impossible")
-                if score == 0:
-                    message_string = (f"{first_name} scored {score} for Heardle #{heardle_number} today")
-                    loser = True
+                # check score is valid and that score has not already been submitted for today
+                if heardle_number not in message_author.scores.keys():
+                    valid_score = False
+                    if score <= 6 and score >= 0:
+                        # i.e. valid score
+                        valid_score = True
+                        message_author.scores[heardle_number] = score
+                        message_string = (f"{first_name} scored {score} for Heardle #{heardle_number}").upper()
+                    else: # score is not valid
+                        if score > 6:
+                            message_string = (f"{first_name} probably cheated on Heardle #{heardle_number} today. score {score} is impossible, maximum score is 6").upper()
+                        elif score < 0 :
+                            message_string = (f"{first_name} probably didnt score {score} for Heardle #{heardle_number}, because score can't be negative").upper()
                 else:
-                    message_string = (f"{first_name} scored {score} for Heardle #{heardle_number} today")
+                    message_string = (f"{first_name} has already submitted a score for Heardle #{heardle_number}").upper()
 
-            if "#Heardle" in message_object.text:
-                message_object.text = message_string
+                # check if player is a loser or not and score zeros                
+                if score == 0:
+                    loser = True         
+        
+                # set message to message decided in previous block, but transformed to uppercase
+                message_object.text = message_string.upper()
 
+                # send message set before
                 self.send(message_object, thread_id=thread_id, thread_type=thread_type)
-                if loser:
-                    message_object.text = insults[randint(0, len(insults)-1)]
+                if not valid_score:
+                    message_object.text = 'SOMETHING PROBABLY WENT WRONG, SCORE NOT RECORDED. MAYBE TRY AGAIN'
                     self.send(message_object, thread_id=thread_id, thread_type=thread_type)
+                # i.e. if score is low
+                elif loser:
+                    message_object.text = insults[randint(0, len(insults)-1)]
                     loser = False
+                    self.send(message_object, thread_id=thread_id, thread_type=thread_type)
+
+            # logic tree for commands
+
+            # if message isn't a heardle message, check to see if there is a command for rob in the message
+            elif '/rob' in protein:
+                
+                # first command /rob here, reports whether rob is here and if he is asleep or not
+                if 'status' in protein:
+                    if self.awake:
+                        message_object.text = 'RUNNING'
+                    else:
+                        message_object.text = 'ASLEEP'
+
+                # second command /rob wake, will wake rob up if he is asleep
+                elif 'wake' in protein:
+                    self.awake = True
+                    message_object.text = "AWAKE"
+
+                # third command, /rob sleep, puts rob to sleep. rob will not 
+                elif 'sleep' in protein:
+                        message_object.text = "ZZZ"
+                        self.awake = False
+                
+                # these commands depend on rob being awake
+                elif self.awake:
+                    # fourth command, /rob notes, rob will send patch notes for current version ot the chat
+                    if 'notes' in protein:
+                        message_object.text = notes
+                    
+                    # if none have triggered  
+                    else:
+                        message_object.text = 'NO COMMAND DETECTED\n' + commands
+                else:
+                    send_message = False
+
+                if send_message:
+                    self.send(message_object, thread_id=thread_id, thread_type=thread_type)
 
     def number_from_message(self, message):
         start_index = 10
         num_str = ""
-        for char in message[10:]:
+        for char in message[start_index:]:
             if char.isnumeric():
                 num_str += char
                 print(char)
@@ -120,25 +146,23 @@ class HeardleBot(Client):
         heardle_number = int(num_str)
         return heardle_number
 
-
-insults = ["and they call me a bot"]
-wakes = ['alive', 'sup', 'back sorry', 'hey guys']
-patch_notes = "patch notes for beta version 0.0 -won't respond if you just say a word with rob in it\n"
+insults = ["and they call me a bot".upper()]
+wake_message = f"ROB_BOT V{version} BOOTING"
+boot_complete = "BOOT COMPLETE"
+commands = 'valid commands are: status, wake, sleep, notes'.upper()
 
 client = HeardleBot(username, password)
 
 thread_type = ThreadType.GROUP
-wake_text = wakes[randint(0, len(wakes)-1)]
-client.send(Message(text=wake_text), thread_id=thread_id, thread_type=thread_type)
+
+# send wake message
+client.send(Message(text=wake_message), thread_id=thread_id, thread_type=thread_type)
 
 # open patch notes file for corresponding version and read them
 file = open(f'patch_notes/patch_notes{version}.txt')
 notes = file.read()
 
 print(notes)
-
-# send patch notes to chat
-client.send(Message(text=notes), thread_id=thread_id, thread_type=thread_type)
 
 threads = client.fetchThreadList()
 print(threads)
@@ -160,4 +184,5 @@ for user_id in group.participants:
 
 print(user_dict)
 
+client.send(Message(text=boot_complete), thread_id=thread_id, thread_type=thread_type)
 client.listen()
