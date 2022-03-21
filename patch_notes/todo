@@ -4,6 +4,6 @@
 - potentially add a way to quit and add a message that triggers "i'm going to sleep" when you do that
 - potentially change endless if tree to switch case tree
 
-# need to make it so that rob doesn't reply to commands in his own mf patch notes
-# basically none of the previous fixes worked
-# completely change logic so that all commands require /rob to activate
+#DONE need to make it so that rob doesn't reply to commands in his own mf patch notes
+#DONE basically none of the previous fixes worked
+#DONE completely change logic so that all commands require /rob to activate

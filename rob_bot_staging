@@ -3,11 +3,11 @@ from fbchat import Client
 from fbchat.models import *
 from fbchat import log
 from random import randint
+from pword import password
 
 version = 3
 
 username = "robbot8947"
-password = "pythonbot123"
 
 staging = True
 if staging:
@@ -51,6 +51,8 @@ class HeardleBot(Client):
 
             loser = False
 
+            send_message = False
+
             heardle_scores = []
             # initial check if the message that has been sent is a heardle message
             if "#heardle" in protein:
@@ -70,13 +72,17 @@ class HeardleBot(Client):
                         valid_score = True
                         message_author.scores[heardle_number] = score
                         message_string = (f"{first_name} scored {score} for Heardle #{heardle_number}").upper()
+                        send_message = True
                     else: # score is not valid
                         if score > 6:
                             message_string = (f"{first_name} probably cheated on Heardle #{heardle_number} today. score {score} is impossible, maximum score is 6").upper()
+                            send_message = True
                         elif score < 0 :
                             message_string = (f"{first_name} probably didnt score {score} for Heardle #{heardle_number}, because score can't be negative").upper()
+                            send_message = True
                 else:
                     message_string = (f"{first_name} has already submitted a score for Heardle #{heardle_number}").upper()
+                    send_message = True
 
                 # check if player is a loser or not and score zeros                
                 if score == 0:
@@ -84,6 +90,7 @@ class HeardleBot(Client):
         
                 # set message to message decided in previous block, but transformed to uppercase
                 message_object.text = message_string.upper()
+                send_message = True
 
                 # send message set before
                 self.send(message_object, thread_id=thread_id, thread_type=thread_type)
@@ -97,12 +104,12 @@ class HeardleBot(Client):
                     self.send(message_object, thread_id=thread_id, thread_type=thread_type)
 
             # logic tree for commands
-
             # if message isn't a heardle message, check to see if there is a command for rob in the message
             elif '/rob' in protein:
                 
                 # first command /rob here, reports whether rob is here and if he is asleep or not
                 if 'status' in protein:
+                    send_message = True
                     if self.awake:
                         message_object.text = 'RUNNING'
                     else:
@@ -112,21 +119,25 @@ class HeardleBot(Client):
                 elif 'wake' in protein:
                     self.awake = True
                     message_object.text = "AWAKE"
+                    send_message = True
 
                 # third command, /rob sleep, puts rob to sleep. rob will not 
                 elif 'sleep' in protein:
                         message_object.text = "ZZZ"
                         self.awake = False
+                        send_message = True
                 
                 # these commands depend on rob being awake
                 elif self.awake:
                     # fourth command, /rob notes, rob will send patch notes for current version ot the chat
                     if 'notes' in protein:
                         message_object.text = notes
+                        send_message = True
                     
                     # if none have triggered  
                     else:
                         message_object.text = 'NO COMMAND DETECTED\n' + commands
+                        send_message = True
                 else:
                     send_message = False
 
