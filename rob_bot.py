@@ -9,7 +9,7 @@ version = 3
 username = "robbot8947"
 password = "pythonbot123"
 
-staging = True
+staging = False
 if staging:
     thread_id = "5820049228023910"
 else:
