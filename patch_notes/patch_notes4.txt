@@ -1,0 +1,3 @@
+patch notes for version 4:
+- rob can now read through all the messages in the chat on boot. this may remove the need for him to save out to a file upon exiting entirely
+- rob now actually does something useful, and keeps track of everyone's scores. you can check using /rob leaderboard or /rob score

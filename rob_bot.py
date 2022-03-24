@@ -172,6 +172,7 @@ client.send(Message(text=wake_message), thread_id=thread_id, thread_type=thread_
 # open patch notes file for corresponding version and read them
 file = open(f'patch_notes/patch_notes{version}.txt')
 notes = file.read()
+file.close()
 
 print(notes)
 
