@@ -172,10 +172,12 @@ class HeardleBot(Client):
                 
                 elif 'leaderboard' in protein:
                     message_object.text = leaderboard(user_dict)
+                    print('leaderboard')
                     send_message = True
 
                 elif 'score' in protein:
                     message_object.text = message_author.score_message()
+                    print('score')
                     send_message = True
                 
                 # these commands depend on rob being awake
@@ -188,6 +190,7 @@ class HeardleBot(Client):
                     # if none have triggered  
                     else:
                         message_object.text = 'NO COMMAND DETECTED\n' + commands
+                        print('no command detected')
                         send_message = True
                 else:
                     send_message = False
@@ -235,6 +238,8 @@ def leaderboard(users):
         print_str += f"{i}. " + name.upper() + " "*(25-len(name)) +  "{:.2f}".format(score) + "\n"
         i += 1
 
+    print(print_str)
+
     return(print_str)
 
 
@@ -277,6 +282,16 @@ for user_id in group.participants:
     user_dict[user_id] = Heardler(user_id, user.name)
 
 # print(user_dict)
+
+# fetch messages from the thread
+messages = client.fetchThreadMessages(thread_id, limit = 10000)
+# Since the message come in reversed order, reverse them
+messages.reverse()
+
+print(f"messages retrieved: {len(messages)}")
+for message in messages:
+    client.process_message(message.uid, message, thread_id, thread_type)
+    #print('processed message successfully')
 
 client.send(Message(text=boot_complete), thread_id=thread_id, thread_type=thread_type)
 client.listen()
